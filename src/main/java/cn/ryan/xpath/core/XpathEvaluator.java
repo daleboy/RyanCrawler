@@ -57,6 +57,16 @@ public class XpathEvaluator {
 		}
 	}
 
+	private static class XpathNodeTree {
+		final static NodeTreeBuilderStateMachine st;
+		static {
+			st = new NodeTreeBuilderStateMachine();
+		}
+
+		private XpathNodeTree() {
+		}
+	}
+
 	/**
 	 * 获取xpath解析语法树
 	 *
@@ -64,7 +74,7 @@ public class XpathEvaluator {
 	 * @return
 	 */
 	public List<Node> getXpathNodeTree(String xpath) {
-		NodeTreeBuilderStateMachine st = new NodeTreeBuilderStateMachine();
+		NodeTreeBuilderStateMachine st = XpathNodeTree.st;
 		while (st.state != NodeTreeBuilderStateMachine.BuilderState.END) {
 			st.state.parser(st, xpath.toCharArray());
 		}

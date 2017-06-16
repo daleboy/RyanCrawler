@@ -1,5 +1,6 @@
 package cn.ryan.xpath.core;
 
+import cn.ryan.utils.Functions;
 import cn.ryan.utils.StringUtils;
 import cn.ryan.xpath.exception.NoSuchAxisException;
 import cn.ryan.xpath.exception.NoSuchFunctionException;
@@ -10,28 +11,15 @@ import cn.ryan.xpath.util.CommonUtil;
 import cn.ryan.xpath.util.ScopeEm;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class XpathEvaluator {
-	private Map<String, Method> emFuncs;
-	private Map<String, Method> axisFuncs;
 
-	public XpathEvaluator() {
-		emFuncs = new HashMap<String, Method>();
-		axisFuncs = new HashMap<String, Method>();
-		for (Method m : Functions.class.getDeclaredMethods()) {
-			emFuncs.put(renderFuncKey(m.getName(), m.getParameterTypes()), m);
-		}
-		for (Method m : AxisSelector.class.getDeclaredMethods()) {
-			axisFuncs.put(renderFuncKey(m.getName(), m.getParameterTypes()), m);
-		}
-	}
+	public XpathEvaluator() {}
 
 	/**
 	 * xpath解析器的总入口，同时预处理，如‘|’
@@ -245,9 +233,11 @@ public class XpathEvaluator {
 	public Elements getAxisScopeEls(String axis, Element e) throws NoSuchAxisException {
 		try {
 			String functionName = CommonUtil.getJMethodNameFromStr(axis);
-			Method axisSelector = axisFuncs.get(renderFuncKey(functionName, e.getClass()));
-			return (Elements) axisSelector.invoke(SingletonProducer.getInstance().getAxisSelector(), e);
-		} catch (Exception e1) {
+			AxisSelector as = new AxisSelectorExpand();
+			DynamicProxy dp = new DynamicProxy(as);
+			Method method = Class.forName(AxisSelector.class.getName()).getMethod(functionName, e.getClass());
+			return (Elements) dp.invoke(method, e);
+		} catch (Throwable e1) {
 			throw new NoSuchAxisException("this axis is not supported,plase use other instead of '" + axis + "'");
 		}
 	}
@@ -262,9 +252,11 @@ public class XpathEvaluator {
 	 */
 	public Object callFunc(String funcname, Elements context) throws NoSuchFunctionException {
 		try {
-			Method function = emFuncs.get(renderFuncKey(funcname, context.getClass()));
-			return function.invoke(SingletonProducer.getInstance().getFunctions(), context);
-		} catch (Exception e) {
+			Functions f = new FunctionsFilter();
+			DynamicProxy dp = new DynamicProxy(f);
+			Method method = Class.forName(Functions.class.getName()).getMethod(funcname, context.getClass());
+			return dp.invoke(method, context);
+		} catch (Throwable e) {
 			throw new NoSuchFunctionException("This function is not supported");
 		}
 	}
@@ -279,9 +271,11 @@ public class XpathEvaluator {
 	 */
 	public Object callFilterFunc(String funcname, Element el) throws NoSuchFunctionException {
 		try {
-			Method function = emFuncs.get(renderFuncKey(funcname, el.getClass()));
-			return function.invoke(SingletonProducer.getInstance().getFunctions(), el);
-		} catch (Exception e) {
+			Functions f = new FunctionsFilter();
+			DynamicProxy dp = new DynamicProxy(f);
+			Method method = Class.forName(Functions.class.getName()).getMethod(funcname,el.getClass());
+			return dp.invoke(method, el);
+		} catch (Throwable e) {
 			throw new NoSuchFunctionException("This function is not supported");
 		}
 	}
@@ -291,10 +285,6 @@ public class XpathEvaluator {
 			return CommonUtil.getElIndexInSameTags(e);
 		}
 		return 1;
-	}
-
-	private String renderFuncKey(String funcName, Class... params) {
-		return funcName + "|" + StringUtils.join(params, ",");
 	}
 
 }

@@ -1,143 +1,31 @@
 package cn.ryan.xpath.core;
+
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-/**
- * 通过轴选出对应作用域的全部节点
- * 去掉不实用的轴，不支持namespace，attribute（可用 /@*代替），preceding(preceding-sibling支持)，following(following-sibling支持)
- * 添加 preceding-sibling-one，following-sibling-one,即只选前一个或后一个兄弟节点，添加 sibling 选取全部兄弟节点
- */
-public class AxisSelector {
-    /**
-     * 自身
-     * @param e
-     * @return
-     */
-    public Elements self(Element e){
-        return new Elements(e);
-    }
+public interface AxisSelector {
+	Elements self(Element e);
 
-    /**
-     * 父节点
-     * @param e
-     * @return
-     */
-    public Elements parent(Element e){
-        return new Elements(e.parent());
-    }
+	Elements parent(Element e);
 
-    /**
-     * 直接子节点
-     * @param e
-     * @return
-     */
-    public Elements child(Element e){
-        return e.children();
-    }
+	Elements child(Element e);
 
-    /**
-     * 全部祖先节点 父亲，爷爷 ， 爷爷的父亲...
-     * @param e
-     * @return
-     */
-    public Elements ancestor(Element e){
-        return e.parents();
-    }
+	Elements ancestor(Element e);
 
-    /**
-     * 全部祖先节点和自身节点
-     * @param e
-     * @return
-     */
-    public Elements ancestorOrSelf(Element e){
-        Elements rs=e.parents();
-        rs.add(e);
-        return rs;
-    }
+	Elements ancestorOrSelf(Element e);
 
-    /**
-     * 全部子代节点 儿子，孙子，孙子的儿子...
-     * @param e
-     * @return
-     */
-    public Elements descendant(Element e){
-        return e.getAllElements();
-    }
+	Elements descendant(Element e);
 
-    /**
-     * 全部子代节点和自身
-     * @param e
-     * @return
-     */
-    public Elements descendantOrSelf(Element e){
-        Elements rs = e.getAllElements();
-        rs.add(e);
-        return rs;
-    }
+	Elements descendantOrSelf(Element e);
 
-    /**
-     * 节点前面的全部同胞节点，preceding-sibling
-     * @param e
-     * @return
-     */
-    public Elements precedingSibling(Element e){
-        Elements rs = new Elements();
-        Element tmp = e.previousElementSibling();
-        while (tmp!=null){
-            rs.add(tmp);
-            tmp = tmp.previousElementSibling();
-        }
-        return rs;
-    }
+	Elements precedingSibling(Element e);
 
-    /**
-     * 返回前一个同胞节点（扩展），语法 preceding-sibling-one
-     * @param e
-     * @return
-     */
-    public Elements precedingSiblingOne(Element e){
-        Elements rs = new Elements();
-        if (e.previousElementSibling()!=null){
-            rs.add(e.previousElementSibling());
-        }
-        return rs;
-    }
+	Elements precedingSiblingOne(Element e);
 
-    /**
-     * 节点后面的全部同胞节点following-sibling
-     * @param e
-     * @return
-     */
-    public Elements followingSibling(Element e){
-        Elements rs = new Elements();
-        Element tmp = e.nextElementSibling();
-        while (tmp!=null){
-            rs.add(tmp);
-            tmp = tmp.nextElementSibling();
-        }
-        return rs;
-    }
+	Elements followingSibling(Element e);
 
-    /**
-     * 返回下一个同胞节点(扩展) 语法 following-sibling-one
-     * @param e
-     * @return
-     */
-    public Elements followingSiblingOne(Element e){
-        Elements rs = new Elements();
-        if (e.nextElementSibling()!=null){
-            rs.add(e.nextElementSibling());
-        }
-        return rs;
-    }
+	Elements followingSiblingOne(Element e);
 
-    /**
-     * 全部同胞（扩展）
-     * @param e
-     * @return
-     */
-    public Elements sibling(Element e){
-        return e.siblingElements();
-    }
+	Elements sibling(Element e);
 
 }

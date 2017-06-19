@@ -1,8 +1,6 @@
 package org.jsoup.nodes;
 
-import cn.ryan.xpath.exception.XpathSyntaxErrorException;
 import cn.ryan.xpath.model.XpathDocument;
-import cn.ryan.xpath.model.XpathNode;
 
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
@@ -33,7 +31,6 @@ public class Document extends Element {
 	 */
 	public Elements xpath(String xpath) {
 		Validate.notEmpty(xpath);
-		
 		return new Elements(new XpathDocument(this).selN(xpath));
 	}
 

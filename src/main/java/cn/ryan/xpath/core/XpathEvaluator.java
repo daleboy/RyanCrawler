@@ -1,16 +1,15 @@
 package cn.ryan.xpath.core;
 
-import cn.ryan.utils.Functions;
 import cn.ryan.utils.StringUtils;
 import cn.ryan.xpath.exception.NoSuchAxisException;
 import cn.ryan.xpath.exception.NoSuchFunctionException;
+import cn.ryan.xpath.functions.RegisterEvaluator;
 import cn.ryan.xpath.model.XpathNode;
 import cn.ryan.xpath.model.Node;
 import cn.ryan.xpath.model.Predicate;
 import cn.ryan.xpath.util.CommonUtil;
 import cn.ryan.xpath.util.ScopeEm;
 
-import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,7 +18,8 @@ import org.jsoup.select.Elements;
 
 public class XpathEvaluator {
 
-	public XpathEvaluator() {}
+	public XpathEvaluator() {
+	}
 
 	/**
 	 * xpath解析器的总入口，同时预处理，如‘|’
@@ -46,7 +46,7 @@ public class XpathEvaluator {
 	}
 
 	private static class XpathNodeTree {
-		final static NodeTreeBuilderStateMachine st;
+		private static NodeTreeBuilderStateMachine st;
 		static {
 			st = new NodeTreeBuilderStateMachine();
 		}
@@ -190,7 +190,6 @@ public class XpathEvaluator {
 					} else if (p.getValue().startsWith("@") && e.hasAttr(StringUtils.substringAfter(p.getValue(), "@"))) {
 						return e;
 					}
-					// todo p.value ~= contains(./@href,'renren.com')
 				} else {
 					if (p.getLeft().matches("[^/]+\\(\\)")) {
 						Object filterRes = p.getOpEm().excute(callFilterFunc(p.getLeft().substring(0, p.getLeft().length() - 2), e).toString(), p.getRight());
@@ -233,10 +232,7 @@ public class XpathEvaluator {
 	public Elements getAxisScopeEls(String axis, Element e) throws NoSuchAxisException {
 		try {
 			String functionName = CommonUtil.getJMethodNameFromStr(axis);
-			AxisSelector as = new AxisSelectorExpand();
-			DynamicProxy dp = new DynamicProxy(as);
-			Method method = Class.forName(AxisSelector.class.getName()).getMethod(functionName, e.getClass());
-			return (Elements) dp.invoke(method, e);
+			return RegisterEvaluator.getAxisFunction(functionName).function(e);
 		} catch (Throwable e1) {
 			throw new NoSuchAxisException("this axis is not supported,plase use other instead of '" + axis + "'");
 		}
@@ -252,10 +248,7 @@ public class XpathEvaluator {
 	 */
 	public Object callFunc(String funcname, Elements context) throws NoSuchFunctionException {
 		try {
-			Functions f = new FunctionsFilter();
-			DynamicProxy dp = new DynamicProxy(f);
-			Method method = Class.forName(Functions.class.getName()).getMethod(funcname, context.getClass());
-			return dp.invoke(method, context);
+			return RegisterEvaluator.getSelectFunction(funcname).function(context);
 		} catch (Throwable e) {
 			throw new NoSuchFunctionException("This function is not supported");
 		}
@@ -265,17 +258,14 @@ public class XpathEvaluator {
 	 * 调用谓语中函数
 	 *
 	 * @param funcname
-	 * @param el
+	 * @param e
 	 * @return
 	 * @throws NoSuchFunctionException
 	 */
-	public Object callFilterFunc(String funcname, Element el) throws NoSuchFunctionException {
+	public Object callFilterFunc(String funcname, Element e) throws NoSuchFunctionException {
 		try {
-			Functions f = new FunctionsFilter();
-			DynamicProxy dp = new DynamicProxy(f);
-			Method method = Class.forName(Functions.class.getName()).getMethod(funcname,el.getClass());
-			return dp.invoke(method, el);
-		} catch (Throwable e) {
+			return RegisterEvaluator.getFilterFunction(funcname).function(e);
+		} catch (Throwable e1) {
 			throw new NoSuchFunctionException("This function is not supported");
 		}
 	}

@@ -44,9 +44,8 @@ public class Demo implements Processor {
 		Response res = PageProcessor.create(new Demo()).url("https://www.baidu.com/s?wd=Java")// Url
 				.execute();// 执行请求
 		Document doc = res.parse();// 格式化
-
 		for (int i = 0; i < 1; i++) {
-			System.out.println(doc.xpath("//div[@id='content_left']/div/h3/a/href()"));
+			System.out.println(doc.xpath("//div[@id='content_left']/div/h3/a[last()]/href()"));
 		}
 	}
 

@@ -2,6 +2,19 @@
 >以Jsoup为请求/下载模块，重构部分底层，重构请求载入结构，重写参数注入方式，嵌入部分增强功能，优化I/O流，可对单个请求定制化，并支持下载功能。
 
 >以JsoupXpath为解析模块，重构解析结构，重写函数、轴、操作符解析方式提高性能和易读性，缓存语法树，移除部分华而不实的功能，增强Xpath语法模块。
+
+## 快速开始
+  	public class Demo implements Processor {
+		private CrawlerSite cr = CrawlerSite.create().userAgent("Mozilla/5.0  (Macintosh;Intel Mac OS X 10_12_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36").ignoreContentType(true).timeOut(1000).setFilePath("/Users/Rui_Statham/Downloads");// 如果填写该路径，则会默认下载访问过的页面到该页面
+		public CrawlerSite getSite() {
+			return cr;
+		} 
+		public static void main(String[] args) throws IOException {
+			Response res = PageProcessor.create(new Demo()).url("https://www.baidu.com/s?wd=Java").execute();// 执行请求
+			Document doc = res.parse();// 格式化doc							  doc.xpath("//div[@id='content_left']/div[position()<4]/h3/a/@href");
+		}
+	}
+	
 ## 解析模块
 ### 语法
 >支持标准Xpath语法（支持谓语嵌套），支持全部常用函数，支持全部常用轴，去掉了一些标准里面华而不实的函数和轴，下面会具体介绍。语法可以参考http://www.w3school.com.cn/xpath/index.asp
@@ -17,18 +30,19 @@
 |href()|节点内所有a标签的绝对地址|
 |text()|提取节点的自有文本|
 |node()|提取所有节点|
+|||
 |position()|返回当前节点所处在同胞中的位置|
 |last()|返回同级节点中的最后那个节点|
 |first()|返回同级节点中的第一个节点|
 
-#### **扩展函数**  
+#### **解析器扩展函数**  
 
 |名称|描述|
 |------:|:------|
-|allText()|提取节点下全部文本|
+|allText()|提取节点下全部文本，取代类似 //div/h3//text()这种递归取文本用法|
 |html()|获取全部节点的内部的html|
 |outerHtml()|获取全部节点的包含节点本身在内的全部html|
-|num()|抽取节点自有文本中全部数字|  
+|num()|抽取节点自有文本中全部数字，如果知道节点的自有文本(即非子代节点所包含的文本)中只存在一个数字，如阅读数，评论数，价格等那么直接可以直接提取此数字出来。如果有多个数字将提取第一个匹配的连续数字。|  
 
 **其他说明**  
 
@@ -77,4 +91,3 @@
 |a~=b|a的内容符合 正则表达式b|
 |a!~b|a的内容不符合 正则表达式b|  
 
-未完待续。。。

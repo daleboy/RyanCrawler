@@ -179,47 +179,47 @@ public class XpathEvaluator {
 	 * @throws NoSuchAxisException
 	 */
 	public Element filter(Element e, Node node) throws NoSuchFunctionException, NoSuchAxisException {
-		if (node.getTagName().equals("*") || node.getTagName().equals(e.nodeName())) {
-			if (node.getPredicate() != null && StringUtils.isNotBlank(node.getPredicate().getValue())) {
-				Predicate p = node.getPredicate();
-				if (p.getOpEm() == null) {
-					if (p.getValue().matches("\\d+") && getElIndex(e) == Integer.parseInt(p.getValue())) {
-						return e;
-					} else if (p.getValue().endsWith("()") && (Boolean) callFilterFunc(p.getValue().substring(0, p.getValue().length() - 2), e)) {
-						return e;
-					} else if (p.getValue().startsWith("@") && e.hasAttr(StringUtils.substringAfter(p.getValue(), "@"))) {
-						return e;
-					}
-				} else {
-					if (p.getLeft().matches("[^/]+\\(\\)")) {
-						Object filterRes = p.getOpEm().excute(callFilterFunc(p.getLeft().substring(0, p.getLeft().length() - 2), e).toString(), p.getRight());
-						if (filterRes instanceof Boolean && (Boolean) filterRes) {
-							return e;
-						} else if (filterRes instanceof Integer && e.siblingIndex() == Integer.parseInt(filterRes.toString())) {
-							return e;
-						}
-					} else if (p.getLeft().startsWith("@")) {
-						String lValue = e.attr(p.getLeft().substring(1));
-						Object filterRes = p.getOpEm().excute(lValue, p.getRight());
-						if ((Boolean) filterRes) {
-							return e;
-						}
-					} else {
-						// 操作符左边不是函数、属性默认就是xpath表达式了
-						List<Element> eltmp = new LinkedList<Element>();
-						eltmp.add(e);
-						List<XpathNode> rstmp = evaluate(p.getLeft(), new Elements(eltmp));
-						if ((Boolean) p.getOpEm().excute(StringUtils.join(rstmp, ""), p.getRight())) {
-							return e;
-						}
-					}
-				}
-			} else {
-				return e;
-			}
-		}
-		return null;
-	}
+        if (node.getTagName().equals("*") || node.getTagName().equals(e.nodeName())) {
+            if (node.getPredicate() != null && StringUtils.isNotBlank(node.getPredicate().getValue())) {
+                Predicate p = node.getPredicate();
+                if (p.getOpEm() == null) {
+                    if (p.getValue().matches("\\d+") && getElIndex(e) == Integer.parseInt(p.getValue())) {
+                        return e;
+                    } else if (p.getValue().endsWith("()") && (Boolean) callFilterFunc(p.getValue().substring(0, p.getValue().length() - 2), e)) {
+                        return e;
+                    } else if (p.getValue().startsWith("@") && e.hasAttr(StringUtils.substringAfter(p.getValue(), "@"))) {
+                        return e;
+                    }
+                    //todo p.value ~= contains(./@href,'renren.com')
+                } else {
+                    if (p.getLeft().matches("[^/]+\\(\\)")) {
+                        Object filterRes = p.getOpEm().excute(callFilterFunc(p.getLeft().substring(0, p.getLeft().length() - 2), e).toString(), p.getRight());
+                        if (filterRes instanceof Boolean && (Boolean) filterRes) {
+                            return e;
+                        } else if (filterRes instanceof Integer && e.siblingIndex() == Integer.parseInt(filterRes.toString())) {
+                            return e;
+                        }
+                    } else if (p.getLeft().startsWith("@")) {
+                        String lValue = e.attr(p.getLeft().substring(1));
+                        Object filterRes = p.getOpEm().excute(lValue, p.getRight());
+                        if ((Boolean) filterRes) {
+                            return e;
+                        }
+                    } else {
+                        // 操作符左边不是函数、属性默认就是xpath表达式了
+                        List<Element> eltmp = new LinkedList<Element>();
+                        eltmp.add(e);
+                        List<XpathNode> rstmp = evaluate(p.getLeft(), new Elements(eltmp));
+                        if ((Boolean) p.getOpEm().excute(StringUtils.join(rstmp, ""), p.getRight())) {
+                            return e;
+                        }
+                    }
+                }
+            } else {
+                return e;
+            }
+        }
+        return null;}
 
 	/**
 	 * 调用轴选择器
@@ -277,4 +277,7 @@ public class XpathEvaluator {
 		return 1;
 	}
 
+	private String renderFuncKey(String funcName, Class[] params) {
+		return funcName + "|" + StringUtils.join(params, ",");
+	}
 }

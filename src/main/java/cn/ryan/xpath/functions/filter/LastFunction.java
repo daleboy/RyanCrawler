@@ -18,7 +18,7 @@ public class LastFunction implements FilterFunction {
 
 	@Override
 	public Object function(Element e) {
-		return CommonUtil.getElIndexInSameTags(e) == CommonUtil.sameTagElNums(e);
+		return (CommonUtil.getElIndexInSameTags(e) == CommonUtil.sameTagElNums(e));
 	}
 
 }

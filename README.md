@@ -19,7 +19,7 @@
 		}
 	}
 ## 请求模块
-> 因请求模块基于Jsoup改造，为兼容原生Jsoup保留大部分操作方式，固可参考Jsoup API，理论上保留95%；
+> 因请求模块基于Jsoup重构，为兼容原生Jsoup保留大部分API(保留95%以上)，固可参考Jsoup API；
 	
 ## 解析模块
 ### 语法
@@ -35,6 +35,10 @@
 > 原生Jsoup写法：`doc.select("div#id div.class:last");`
 > 
 > **现在的写法：**`doc.xpath("//*[@id='id']/div[class='class']/div[last()]");`
+> 
+> **其他写法：** `doc.xpath("//*[@id='id']").select("div.class").xpath("//div[last]");`
+> 
+> **其他写法2：**`doc.getElementById("id").select("div.class").xpath("//div[last]");`
 ### Xpath部分示例
 	http://www.cnblogs.com/ 为例
 	//a/@href;

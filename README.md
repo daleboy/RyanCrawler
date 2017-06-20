@@ -32,6 +32,7 @@
 ### 特别说明
 > RyanCrawler解析模块支持两种写法：
 > 原生Jsoup写法：`doc.select("div#id div.class:last");`
+> 
 > **现在的写法：**`doc.xpath("//*[@id='id']/div[class='class']/div[last()]");`
 ### Xpath部分示例
 	http://www.cnblogs.com/ 为例
@@ -106,3 +107,4 @@
 |a$=b|a以b结尾 a endwith b|
 |a~=b|a的内容符合 正则表达式b|
 |a!~b|a的内容不符合 正则表达式b|  
+

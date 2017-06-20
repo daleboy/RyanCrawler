@@ -36,9 +36,9 @@
 > 
 > **现在的写法：**`doc.xpath("//*[@id='id']/div[class='class']/div[last()]");`
 > 
-> **其他写法：** `doc.xpath("//*[@id='id']").select("div.class").xpath("//div[last]");`
+> **现在的写法：** `doc.xpath("//*[@id='id']").select("div.class").xpath("//div[last]");`
 > 
-> **其他写法2：**`doc.getElementById("id").select("div.class").xpath("//div[last]");`
+> **现在的写法2：**`doc.getElementById("id").select("div.class").xpath("//div[last]");`
 
 ### Xpath部分示例
 	http://www.cnblogs.com/ 为例

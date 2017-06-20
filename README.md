@@ -30,7 +30,7 @@
 >非常不建议直接粘贴Firefox或chrome里生成的Xpath，这些浏览器在渲染页面会根据标准自动补全一些标签，如table标签会自动加上tbody标签，这样生成的Xpath路径显然不是最通用的，所以很可能就取不到值。所以，要使用Xpath并感受Xpath的强大以及他所带来便捷与优雅最好就是学习下Xpath的标准语法，这样应对各种问题才能游刃有余，享受Xpath的真正威力！
 
 ### 特别说明
-> RyanCrawler解析模块支持两种写法：
+> RyanCrawler解析模块支持以下几种写法：
 > 
 > 原生Jsoup写法：`doc.select("div#id div.class:last");`
 > 
@@ -39,6 +39,7 @@
 > **其他写法：** `doc.xpath("//*[@id='id']").select("div.class").xpath("//div[last]");`
 > 
 > **其他写法2：**`doc.getElementById("id").select("div.class").xpath("//div[last]");`
+
 ### Xpath部分示例
 	http://www.cnblogs.com/ 为例
 	//a/@href;

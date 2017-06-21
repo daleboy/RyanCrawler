@@ -40,7 +40,7 @@ import org.jsoup.select.Selector;
  */
 public class Element extends Node {
 	private Tag tag;
-	
+
 	/**
 	 * get Document Object
 	 * 
@@ -49,7 +49,7 @@ public class Element extends Node {
 	public Document getDocument() {
 		return Parser.parseNotContainBody(this.outerHtml());
 	}
-	
+
 	public Elements xpath(String xpath) {
 		return getDocument().xpath(xpath);
 	}
@@ -74,10 +74,9 @@ public class Element extends Node {
 		return getDocument().xpathO("//a/@href");
 	}
 
-	
 	public Element regexExtraction(String paramString) {
 		Validate.notNull(paramString);
-		
+
 		return regexExtraction(paramString, 0);
 	}
 
@@ -93,26 +92,30 @@ public class Element extends Node {
 	public Element regexExtraction(String paramString, int group) {
 		Validate.notNull(paramString);
 		Validate.notNull(group);
-		
-		Pattern pattern = Pattern.compile(paramString);
-		Matcher matcher = pattern.matcher(this.html());
-		while (matcher.find()) {
-			String retStr;
-			if (group > 0) {
-				retStr = matcher.group(group);
-			} else {
-				retStr = matcher.group();
+
+		try {
+			Pattern pattern = Pattern.compile(paramString);
+			Matcher matcher = pattern.matcher(this.html());
+			while (matcher.find()) {
+				String retStr;
+				if (group > 0) {
+					retStr = matcher.group(group);
+				} else {
+					retStr = matcher.group();
+				}
+				return Parser.parseOnlyText(retStr);
 			}
-			return Parser.parseOnlyText(retStr);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return null;
 	}
 
 	/***
-	 * 	Use a regular expression to matcher a string
+	 * Use a regular expression to matcher a string
 	 * 
 	 * @param paramString
-	 * 				The expression to be compiled
+	 *            The expression to be compiled
 	 * @return
 	 */
 	public Element regexMatcher(String paramString) {

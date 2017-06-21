@@ -1,15 +1,19 @@
 package org.jsoup.nodes;
 
 import cn.ryan.xpath.model.XpathDocument;
+import cn.ryan.xpath.model.XpathNode;
 
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoup.helper.StringUtil;
 import org.jsoup.helper.Validate;
 import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Parser;
 import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 
@@ -26,23 +30,55 @@ public class Document extends Element {
 
 	/**
 	 * Use xpath to match all node
+	 * 
 	 * @param xpath
-	 * @return 
+	 * @return
 	 */
 	public Elements xpath(String xpath) {
 		Validate.notEmpty(xpath);
-		return new Elements(new XpathDocument(this).selN(xpath));
+		
+		return getElements(XpathDocument.init(this).xpath(xpath));
+	}
+
+	/***
+	 * Node converter
+	 * 
+	 * @param list
+	 *            original list
+	 * @return
+	 */
+	private static Elements getElements(List<XpathNode> list) {
+		Elements elements = new Elements();
+		for (XpathNode jxNode : list) {
+			Element fe = jxNode.getElement();
+			if (fe != null && fe.getAllElements().size() > 0) {
+				elements.add(fe);
+			} else {
+				String text = jxNode.getTextVal();
+				Element e = Parser.parseOnlyText(text);
+				elements.add(e);
+			}
+		}
+		return elements;
 	}
 
 	/***
 	 * Use xpath to match a single node
+	 * 
 	 * @param xpath
 	 * @return
 	 */
 	public Element xpathO(String xpath) {
 		Validate.notNull(xpath);
 
-		return getElement(new XpathDocument(this).selNOne(xpath));
+		return getElement(XpathDocument.init(this).xpathNode(xpath));
+	}
+
+	private static Element getElement(XpathNode jxNode) {
+		if (jxNode.getElement() == null && !jxNode.getTextVal().isEmpty()) {
+			return Parser.parseOnlyText(jxNode.getTextVal());
+		}
+		return jxNode.getElement();
 	}
 
 	/***
@@ -75,13 +111,13 @@ public class Document extends Element {
 		super(Tag.valueOf("#root", ParseSettings.htmlDefault), baseUri);
 		this.location = baseUri;
 	}
-	
+
 	public static Document creatNotContainBody(String html) {
 		Validate.notNull(html);
-		
+
 		Document doc = new Document("");
 		doc.append(html);
-		
+
 		return doc;
 	}
 

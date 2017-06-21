@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoup.Jsoup;
+import org.jsoup.helper.Validate;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -13,21 +14,28 @@ import cn.ryan.xpath.exception.NoSuchFunctionException;
 
 public class XpathDocument {
 	private Elements elements;
-	private XpathEvaluator xpathEva = new XpathEvaluator();
+	private XpathEvaluator xpathEva = new XpathEvaluator();;
 
-	public XpathDocument(Document doc) {
-		elements = doc.children();
+	private XpathDocument(Object o) {
+		if (o instanceof Document) {
+			elements = ((Document) o).children();
+		} else if (o instanceof String) {
+			elements = Jsoup.parse((String) o).children();
+		} else if (o instanceof Elements) {
+			elements = (Elements) o;
+		} else {
+			Validate.isNotExists("Unsupported type");
+		}
 	}
 
-	public XpathDocument(String html) {
-		elements = Jsoup.parse(html).children();
+	private XpathDocument() {
 	}
 
-	public XpathDocument(Elements els) {
-		elements = els;
+	public static XpathDocument init(Object o) {
+		return new XpathDocument(o);
 	}
 
-	public List<Object> sel(String xpath) {
+	public List<Object> xpathList(String xpath) {
 		List<Object> res = new LinkedList<Object>();
 		try {
 			List<XpathNode> jns = xpathEva.xpathParser(xpath, elements);
@@ -48,7 +56,7 @@ public class XpathDocument {
 		return res;
 	}
 
-	public List<XpathNode> selN(String xpath) {
+	public List<XpathNode> xpath(String xpath) {
 		try {
 			return xpathEva.xpathParser(xpath, elements);
 		} catch (Exception e) {
@@ -60,8 +68,8 @@ public class XpathDocument {
 		}
 	}
 
-	public Object selOne(String xpath) {
-		XpathNode jxNode = selNOne(xpath);
+	public Object xpathObj(String xpath) {
+		XpathNode jxNode = xpathNode(xpath);
 		if (jxNode != null) {
 			if (jxNode.isText()) {
 				return jxNode.getTextVal();
@@ -72,8 +80,8 @@ public class XpathDocument {
 		return null;
 	}
 
-	public XpathNode selNOne(String xpath) {
-		List<XpathNode> jxNodeList = selN(xpath);
+	public XpathNode xpathNode(String xpath) {
+		List<XpathNode> jxNodeList = xpath(xpath);
 		if (jxNodeList != null && jxNodeList.size() > 0) {
 			return jxNodeList.get(0);
 		}

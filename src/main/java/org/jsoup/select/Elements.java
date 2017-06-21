@@ -59,9 +59,6 @@ public class Elements extends ArrayList<Element> {
 		super(Arrays.asList(elements));
 	}
 
-	public Elements(List<XpathNode> list) {
-		super(getElements(list));
-	}
 
 	/***
 	 * Get an absolute link to a tag
@@ -147,26 +144,6 @@ public class Elements extends ArrayList<Element> {
 		return es;
 	}
 
-	/***
-	 * Node converter
-	 * @param list
-	 * 				original list
-	 * @return
-	 */
-	private static List<Element> getElements(List<XpathNode> list) {
-		List<Element> elements = new LinkedList<>();
-		for (XpathNode jxNode : list) {
-			Element fe = jxNode.getElement();
-			if (fe != null && fe.getAllElements().size() > 0) {
-				elements.add(fe);
-			} else {
-				String text = jxNode.getTextVal();
-				Element e = Parser.parseOnlyText(text);
-				elements.add(e);
-			}
-		}
-		return elements;
-	}
 
 	/**
 	 * Creates a deep copy of these elements.

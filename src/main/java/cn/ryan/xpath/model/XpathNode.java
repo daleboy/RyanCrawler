@@ -17,7 +17,6 @@ public class XpathNode {
 	private Element element;
 	private boolean isText;
 	private String textVal;
-	
 
 	public Element getElement() {
 		return element;
@@ -50,8 +49,8 @@ public class XpathNode {
 		if (element == null) {
 			return null;
 		}
-		XpathDocument doc = new XpathDocument(new Elements(element));
-		return doc.selN(xpath);
+		XpathDocument doc = XpathDocument.init(new Elements(element));
+		return doc.xpath(xpath);
 	}
 
 	public static XpathNode e(Element element) {
@@ -59,7 +58,7 @@ public class XpathNode {
 		n.setElement(element).setText(false);
 		return n;
 	}
-	
+
 	public static List<XpathNode> e(Elements element) {
 		List<XpathNode> list = new ArrayList<>();
 		for (Element e : element) {
@@ -73,7 +72,7 @@ public class XpathNode {
 		n.setTextVal(txt).setText(true);
 		return n;
 	}
-	
+
 	public static List<XpathNode> t(List<String> eList) {
 		List<XpathNode> list = new ArrayList<>();
 		for (String str : eList) {
@@ -81,7 +80,7 @@ public class XpathNode {
 		}
 		return list;
 	}
-	
+
 	@Override
 	public String toString() {
 		if (isText) {

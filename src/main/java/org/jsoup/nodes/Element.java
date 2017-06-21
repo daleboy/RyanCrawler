@@ -66,13 +66,6 @@ public class Element extends Node {
 		this(Tag.valueOf(tag), "", new Attributes());
 	}
 
-	public static Element getElement(XpathNode jxNode) {
-		if (jxNode.getElement() == null && !jxNode.getTextVal().isEmpty()) {
-			return Parser.parseOnlyText(jxNode.getTextVal());
-		}
-		return jxNode.getElement();
-	}
-
 	public Element absLink() {
 		return Parser.parseOnlyText(this.select("a").attr("abs:href"));
 	}

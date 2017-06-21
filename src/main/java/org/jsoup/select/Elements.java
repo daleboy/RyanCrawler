@@ -4,6 +4,7 @@ import cn.ryan.xpath.exception.XpathSyntaxErrorException;
 import cn.ryan.xpath.model.XpathDocument;
 import cn.ryan.xpath.model.XpathNode;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -95,8 +96,9 @@ public class Elements extends ArrayList<Element> {
 	 * @param group
 	 *            The index of a capturing group in this matcher's pattern
 	 * @return
+	 * @throws IOException 
 	 */
-	public Elements regexExtraction(String paramString, int group) {
+	public Elements regexExtraction(String paramString, int group)  {
 		Validate.notNull(paramString);
 		Validate.notNull(group);
 
@@ -116,8 +118,9 @@ public class Elements extends ArrayList<Element> {
 	 * @param paramString
 	 *            The expression to be compiled
 	 * @return  Elements Match the first group
+	 * @throws IOException 
 	 */
-	public Elements regexExtraction(String paramString) {
+	public Elements regexExtraction(String paramString) throws IOException {
 		Validate.notNull(paramString);
 
 		return regexExtraction(paramString, 0);

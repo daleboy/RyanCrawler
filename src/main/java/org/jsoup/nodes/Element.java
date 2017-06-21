@@ -93,20 +93,19 @@ public class Element extends Node {
 		Validate.notNull(paramString);
 		Validate.notNull(group);
 
-		try {
-			Pattern pattern = Pattern.compile(paramString);
-			Matcher matcher = pattern.matcher(this.html());
-			while (matcher.find()) {
-				String retStr;
-				if (group > 0) {
-					retStr = matcher.group(group);
-				} else {
-					retStr = matcher.group();
-				}
-				return Parser.parseOnlyText(retStr);
+		Pattern pattern = Pattern.compile(paramString);
+		Matcher matcher = pattern.matcher(this.html());
+		while (matcher.find()) {
+			String retStr;
+			if (group > matcher.groupCount()) {
+				return null;
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+			if (group > 0) {
+				retStr = matcher.group(group);
+			} else {
+				retStr = matcher.group();
+			}
+			return Parser.parseOnlyText(retStr);
 		}
 		return null;
 	}

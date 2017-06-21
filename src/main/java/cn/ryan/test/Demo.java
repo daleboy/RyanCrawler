@@ -20,7 +20,6 @@ public class Demo implements Processor {
 		Response res = PageProcessor.create(new Demo()).url("https://www.baidu.com/s?wd=Java")// Url
 				.execute();// 执行请求
 		Document doc = res.parse();// 格式化doc
-		
 		doc.xpath("//div[@id='content_left']/div[position()<4]");
 	}
 }

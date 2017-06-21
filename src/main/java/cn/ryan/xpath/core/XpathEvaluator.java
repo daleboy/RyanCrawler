@@ -69,99 +69,94 @@ public class XpathEvaluator {
 	 * @throws NoSuchFunctionException
 	 */
 	public List<XpathNode> evaluate(String xpath, Elements root) throws NoSuchAxisException, NoSuchFunctionException {
-		try {
-			List<XpathNode> res = new LinkedList<XpathNode>();
-			Elements context = root;
-			List<Node> xpathNodes = getXpathNodeTree(xpath);
-			for (int i = 0; i < xpathNodes.size(); i++) {
-				Node n = xpathNodes.get(i);
-				LinkedList<Element> contextTmp = new LinkedList<Element>();
-				if (n.getScopeEm() == ScopeEm.RECURSIVE || n.getScopeEm() == ScopeEm.CURREC) {
-					if (n.getTagName().startsWith("@")) {
-						for (Element e : context) {
-							// 处理上下文自身节点
-							String key = n.getTagName().substring(1);
+		List<XpathNode> res = new LinkedList<XpathNode>();
+		Elements context = root;
+		List<Node> xpathNodes = getXpathNodeTree(xpath);
+		for (int i = 0; i < xpathNodes.size(); i++) {
+			Node n = xpathNodes.get(i);
+			LinkedList<Element> contextTmp = new LinkedList<Element>();
+			if (n.getScopeEm() == ScopeEm.RECURSIVE || n.getScopeEm() == ScopeEm.CURREC) {
+				if (n.getTagName().startsWith("@")) {
+					for (Element e : context) {
+						// 处理上下文自身节点
+						String key = n.getTagName().substring(1);
+						if (key.equals("*")) {
+							res.add(XpathNode.t(e.attributes().toString()));
+						} else {
+							String value = e.attr(key);
+							if (StringUtils.isNotBlank(value)) {
+								res.add(XpathNode.t(value));
+							}
+						}
+						// 处理上下文子代节点
+						for (Element dep : e.getAllElements()) {
 							if (key.equals("*")) {
-								res.add(XpathNode.t(e.attributes().toString()));
+								res.add(XpathNode.t(dep.attributes().toString()));
 							} else {
-								String value = e.attr(key);
+								String value = dep.attr(key);
 								if (StringUtils.isNotBlank(value)) {
 									res.add(XpathNode.t(value));
 								}
-							}
-							// 处理上下文子代节点
-							for (Element dep : e.getAllElements()) {
-								if (key.equals("*")) {
-									res.add(XpathNode.t(dep.attributes().toString()));
-								} else {
-									String value = dep.attr(key);
-									if (StringUtils.isNotBlank(value)) {
-										res.add(XpathNode.t(value));
-									}
-								}
-							}
-						}
-					} else if (n.getTagName().endsWith("()")) {
-						// 递归执行方法默认只支持text()
-						res.add(XpathNode.t(context.text()));
-					} else {
-						Elements searchRes = context.select(n.getTagName());
-						for (Element e : searchRes) {
-							Element filterR = filter(e, n);
-							if (filterR != null) {
-								contextTmp.add(filterR);
-							}
-						}
-						context = new Elements(contextTmp);
-						if (i == xpathNodes.size() - 1) {
-							for (Element e : contextTmp) {
-								res.add(XpathNode.e(e));
 							}
 						}
 					}
-
+				} else if (n.getTagName().endsWith("()")) {
+					// 递归执行方法默认只支持text()
+					res.add(XpathNode.t(context.text()));
 				} else {
-					if (n.getTagName().startsWith("@")) {
-						for (Element e : context) {
-							String key = n.getTagName().substring(1);
-							if (key.equals("*")) {
-								res.add(XpathNode.t(e.attributes().toString()));
-							} else {
-								String value = e.attr(key);
-								if (StringUtils.isNotBlank(value)) {
-									res.add(XpathNode.t(value));
-								}
+					Elements searchRes = context.select(n.getTagName());
+					for (Element e : searchRes) {
+						Element filterR = filter(e, n);
+						if (filterR != null) {
+							contextTmp.add(filterR);
+						}
+					}
+					context = new Elements(contextTmp);
+					if (i == xpathNodes.size() - 1) {
+						for (Element e : contextTmp) {
+							res.add(XpathNode.e(e));
+						}
+					}
+				}
+
+			} else {
+				if (n.getTagName().startsWith("@")) {
+					for (Element e : context) {
+						String key = n.getTagName().substring(1);
+						if (key.equals("*")) {
+							res.add(XpathNode.t(e.attributes().toString()));
+						} else {
+							String value = e.attr(key);
+							if (StringUtils.isNotBlank(value)) {
+								res.add(XpathNode.t(value));
 							}
 						}
-					} else if (n.getTagName().endsWith("()")) {
-						res = (List<XpathNode>) callFunc(n.getTagName().substring(0, n.getTagName().length() - 2), context);
-					} else {
-						for (Element e : context) {
-							Elements filterScope = e.children();
-							if (StringUtils.isNotBlank(n.getAxis())) {
-								filterScope = getAxisScopeEls(n.getAxis(), e);
-							}
-							for (Element chi : filterScope) {
-								Element fchi = filter(chi, n);
-								if (fchi != null) {
-									contextTmp.add(fchi);
-								}
+					}
+				} else if (n.getTagName().endsWith("()")) {
+					res = (List<XpathNode>) callFunc(n.getTagName().substring(0, n.getTagName().length() - 2), context);
+				} else {
+					for (Element e : context) {
+						Elements filterScope = e.children();
+						if (StringUtils.isNotBlank(n.getAxis())) {
+							filterScope = getAxisScopeEls(n.getAxis(), e);
+						}
+						for (Element chi : filterScope) {
+							Element fchi = filter(chi, n);
+							if (fchi != null) {
+								contextTmp.add(fchi);
 							}
 						}
-						context = new Elements(contextTmp);
-						if (i == xpathNodes.size() - 1) {
-							for (Element e : contextTmp) {
-								res.add(XpathNode.e(e));
-							}
+					}
+					context = new Elements(contextTmp);
+					if (i == xpathNodes.size() - 1) {
+						for (Element e : contextTmp) {
+							res.add(XpathNode.e(e));
 						}
 					}
 				}
 			}
-			return res;
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
-		return null;
+		return res;
 	}
 
 	/**
